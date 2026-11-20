@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() => runApp(const CvApp());
 
@@ -205,8 +206,13 @@ class _MainPageState extends State<MainPage> {
                 accountName: Text('Tshirezi Lwaboshi Sarah'),
                 accountEmail: Text('Étudiante en informatique'),
                 currentAccountPicture: CircleAvatar(
-                  backgroundImage: NetworkImage(
-                    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300',
+                  backgroundColor: Colors.white,
+                  child: Text(
+                    'TS',
+                    style: TextStyle(
+                      color: Color(0xFF6750A4),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -322,8 +328,14 @@ class CvPage extends StatelessWidget {
               children: [
                 const CircleAvatar(
                   radius: 58,
-                  backgroundImage: NetworkImage(
-                    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',
+                  backgroundColor: Color(0xFF6750A4),
+                  child: Text(
+                    'TS',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 38,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -440,30 +452,10 @@ class FamilyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final members = [
-      (
-        'Papa',
-        'Parent',
-        'Chef d’entreprise',
-        'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300',
-      ),
-      (
-        'Maman',
-        'Parent',
-        'Professionnelle',
-        'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=300',
-      ),
-      (
-        'Frère',
-        'Frère',
-        'Étudiant',
-        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300',
-      ),
-      (
-        'Sœur',
-        'Sœur',
-        'Étudiante',
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300',
-      ),
+      ('Papa', 'Parent', 'Chef d’entreprise', Icons.person),
+      ('Maman', 'Parent', 'Professionnelle', Icons.face_3),
+      ('Frère', 'Frère', 'Étudiant', Icons.person_outline),
+      ('Sœur', 'Sœur', 'Étudiante', Icons.person_3_outlined),
     ];
 
     return GridView.builder(
@@ -482,10 +474,23 @@ class FamilyPage extends StatelessWidget {
           child: Column(
             children: [
               Expanded(
-                child: Image.network(
-                  member.$4,
-                  fit: BoxFit.cover,
+                child: Container(
                   width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Theme.of(context).colorScheme.primaryContainer,
+                        Theme.of(context).colorScheme.secondaryContainer,
+                      ],
+                    ),
+                  ),
+                  child: Icon(
+                    member.$4,
+                    size: 82,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ),
               Padding(
@@ -521,22 +526,28 @@ class FamilyPage extends StatelessWidget {
 class ContactPage extends StatelessWidget {
   const ContactPage({super.key});
 
+  Future<void> _open(Uri uri) async {
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.all(16),
-      children: const [
+      children: [
         ContactTile(
           icon: Icons.phone_outlined,
           title: 'Téléphone',
           subtitle: '+243 900 000 000',
+          onTap: () => _open(Uri.parse('tel:+243900000000')),
         ),
         ContactTile(
           icon: Icons.email_outlined,
           title: 'E-mail',
           subtitle: 'sarah@example.com',
+          onTap: () => _open(Uri.parse('mailto:sarah@example.com')),
         ),
-        ContactTile(
+        const ContactTile(
           icon: Icons.location_on_outlined,
           title: 'Adresse',
           subtitle: 'Kinshasa, République démocratique du Congo',
@@ -545,13 +556,16 @@ class ContactPage extends StatelessWidget {
           icon: Icons.link,
           title: 'LinkedIn',
           subtitle: 'linkedin.com/in/sarahlwaboshi',
+          onTap: () =>
+              _open(Uri.parse('https://linkedin.com/in/sarahlwaboshi')),
         ),
         ContactTile(
           icon: Icons.code,
           title: 'GitHub',
           subtitle: 'github.com/sarahlb21',
+          onTap: () => _open(Uri.parse('https://github.com/sarahlb21')),
         ),
-        ContactTile(
+        const ContactTile(
           icon: Icons.camera_alt_outlined,
           title: 'Instagram',
           subtitle: '@sarah.tshirezi',
@@ -567,10 +581,13 @@ class ContactTile extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.onTap,
   });
+
   final IconData icon;
   final String title;
   final String subtitle;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -579,7 +596,8 @@ class ContactTile extends StatelessWidget {
         leading: CircleAvatar(child: Icon(icon)),
         title: Text(title),
         subtitle: Text(subtitle),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: onTap == null ? null : const Icon(Icons.chevron_right),
+        onTap: onTap,
       ),
     );
   }
